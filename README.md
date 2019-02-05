@@ -1,2 +1,2 @@
 # CoderBrick
-Javascript tutorial game "casse brique"
+Tutoriel menant étape par étape à la création d'un jeu de type "casse brique"
