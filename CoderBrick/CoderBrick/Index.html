@@ -1,15 +1,54 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <style>
+      canvas {
+         border: 1px solid #d3d3d3;
+         background-color: #f1f1f1;
+      }
+   </style>
+   <title>Casse Brique</title>
 </head>
-<body>
-   <form>
-      What is your name: <input type="text" size="20" id="myname" />
-      <button type="button" id="mybutton">Submit</button>
-   </form>
-   <div id="hellomessage"></div>
-   <script src="hello.js"></script>
+<body onload="startGame()">
+   <script>
+      var myGamePiece;
+
+      function startGame() {
+         myGameArea.start();
+         myGamePiece = new component(30, 30, "red", 225, 240);
+      }
+
+      var myGameArea = {
+         canvas: document.createElement("canvas"),
+         start: function () {
+            this.canvas.width = 480;
+            this.canvas.height = 270;
+            this.context = this.canvas.getContext("2d");
+            document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+            this.interval = setInterval(updateGameArea, 20);
+         },
+         clear: function () {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+         }
+      }
+
+      function component(width, height, color, x, y) {
+         this.width = width;
+         this.height = height;
+         this.x = x;
+         this.y = y;
+         this.update = function () {
+            ctx = myGameArea.context;
+            ctx.fillStyle = color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+         }
+      }
+
+      function updateGameArea() {
+         myGameArea.clear();
+         myGamePiece.update();
+      }
+   </script>
 </body>
-</html>
+</html> 
