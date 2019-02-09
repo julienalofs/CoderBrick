@@ -11,41 +11,10 @@
    <title>Casse Brique</title>
 </head>
 <body onload="startGame()">
-   <script>
-      var myGamePiece;
-
-      function startGame() {
-         myGameArea.start();
-         myGamePiece = new rectangle(30, 10, "red", 225, 240);
-         myGamePiece = new circle(80, "green", 100, 100);
-      }
-
-      var myGameArea = {
-         canvas: document.createElement("canvas"),
-         start: function () {
-            this.canvas.width = 480;
-            this.canvas.height = 270;
-            this.context = this.canvas.getContext("2d");
-            document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-         }
-      }
-
-      function rectangle(width, height, color, x, y) {
-         this.width = width;
-         this.height = height;
-         this.x = x;
-         this.y = y;
-         ctx = myGameArea.context;
-         ctx.fillStyle = color;
-         ctx.fillRect(this.x, this.y, this.width, this.height);
-      }
-      
-      function circle(radius, color, x, y) {
-         ctx = myGameArea.context;
-         ctx.arc(x, y, radius, 0, 2 * Math.PI);
-         ctx.fillStyle = color;
-         ctx.fill();
-      }
-   </script>
+   <script src="CoderBrick.js"></script>
+   <div style="text-align:center;width:480px;">
+      <button onmousedown="movePlatformLeft()" onmouseup="clearPlatformMove()" ontouchstart="movePlatformLeft()">LEFT</button>
+      <button onmousedown="movePlatformRight()" onmouseup="clearPlatformMove()" ontouchstart="movePlatformRight()">RIGHT</button><br><br>
+   </div>
 </body>
 </html> 
