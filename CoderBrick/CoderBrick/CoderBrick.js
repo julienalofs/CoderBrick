@@ -114,7 +114,8 @@ function clearPlatformMove() {
 
 function keyDown(e) {
    if ((e.code == "ArrowLeft") || (e.code == "ArrowRight")) {
-      if (myGameArea.keycode == null) {
+      if (myGameArea.keycode != e.code) {
+         clearPlatformMove();
          myGameArea.keycode = e.code;
          if (e.code == "ArrowLeft")
             movePlatformLeft();
