@@ -22,6 +22,48 @@ var myGameArea = {
    }
 }
 
+var gameDecor = {
+   update: function () {
+      ctx = myGameArea.context;
+      ctx.fillStyle = "blue";
+      //Left border
+      ctx.fillRect(0, 0, 10, myGameArea.canvas.height);
+
+      //Right border
+      ctx.fillRect(myGameArea.canvas.width - 10, 0, 10, myGameArea.canvas.height);
+
+      //Top border
+      ctx.fillRect(0, 0, myGameArea.canvas.width, 10);
+
+      //Top left corner
+      ctx.beginPath();
+      ctx.moveTo(10, 10);
+      ctx.lineTo(30, 10);
+      ctx.lineTo(10, 30);
+      ctx.closePath();
+      ctx.fill();
+
+      //Top right corner
+      ctx.beginPath();
+      ctx.moveTo(myGameArea.canvas.width - 30, 10);
+      ctx.lineTo(myGameArea.canvas.width - 10, 10);
+      ctx.lineTo(myGameArea.canvas.width - 10, 30);
+      ctx.closePath();
+      ctx.fill();
+
+      //Unbreakable brick
+      ctx.strokeStyle = "gray";
+      ctx.strokeRect(60, 60, 30, 10);
+      ctx.strokeRect(310, 120, 30, 10);
+      ctx.strokeRect(400, 50, 30, 10);
+   },
+   platformCollide: function (platform) {
+      if ((platform.x + (platform.width) > myGameArea.canvas.width - 10)
+         || (platform.x < 10))
+         return true;
+   }
+}
+
 function startGame() {
    myGamePlatform = new gamePlatform(75, 10, "red", 225, 240);
    myGameBall = new gameBall(10, "green", 100, 100);
@@ -36,6 +78,7 @@ function updateGameArea(timestamp) {
    myGameArea.clear();
    myGamePlatform.update();
    myGameBall.update();
+   monDecor.update();
    requestAnimationFrame(updateGameArea);
 }
 
@@ -68,15 +111,21 @@ function gamePlatform(width, height, color, x, y) {
             moveDiff = 5;
          }
 
-         if (leftMove)
-            this.x -= moveDiff;
-         else
-            this.x += moveDiff;
+         for (i = 0; i < moveDiff; i++) {
 
-         if (this.x < 0)
-            this.x = 0;
-         if (this.x > myGameArea.canvas.width - this.width)
-            this.x = myGameArea.canvas.width - this.width;
+            var test = {
+               x: this.x,
+               width: this.width
+            };
+
+            if (leftMove)
+               test.x -= 1;
+            else
+               test.x += 1;
+
+            if (!monDecor.platformCollide(test))
+               this.x = test.x;
+         }         
       }
       
       ctx = myGameArea.context;
