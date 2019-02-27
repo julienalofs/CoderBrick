@@ -2,6 +2,8 @@
 
 var myGamePlatform;
 var myGameBall;
+var myGameDecor;
+var myUnbreakableBricks;
 
 var myGameArea = {
    starttime : null,
@@ -22,10 +24,11 @@ var myGameArea = {
    }
 }
 
-var gameDecor = {
-   update: function () {
+function gameDecor(color) {
+   this.color = color;
+   this.update= function () {
       ctx = myGameArea.context;
-      ctx.fillStyle = "blue";
+      ctx.fillStyle = this.color;
       //Left border
       ctx.fillRect(0, 0, 10, myGameArea.canvas.height);
 
@@ -50,23 +53,33 @@ var gameDecor = {
       ctx.lineTo(myGameArea.canvas.width - 10, 30);
       ctx.closePath();
       ctx.fill();
-
-      //Unbreakable brick
-      ctx.strokeStyle = "gray";
-      ctx.strokeRect(60, 60, 30, 10);
-      ctx.strokeRect(310, 120, 30, 10);
-      ctx.strokeRect(400, 50, 30, 10);
-   },
-   platformCollide: function (platform) {
+   }
+   this.platformCollide= function (platform) {
       if ((platform.x + (platform.width) > myGameArea.canvas.width - 10)
          || (platform.x < 10))
          return true;
    }
 }
 
+function unbreakableBrick(x, y, width, height, color) {
+   this.x = x;
+   this.y = y;
+   this.width = width;
+   this.height = height;
+   this.color = color;
+   this.update = function () {
+      ctx = myGameArea.context;
+      //Unbreakable brick
+      ctx.strokeStyle = this.color;
+      ctx.strokeRect(this.x, this.y, this.width, this.height);
+   }
+}
+
 function startGame() {
    myGamePlatform = new gamePlatform(75, 10, "red", 225, 240);
    myGameBall = new gameBall(10, "green", 100, 100);
+   myGameDecor = new gameDecor("blue");
+   myUnbreakableBricks = new Array(new unbreakableBrick(60, 60, 30, 10), new unbreakableBrick(310, 120, 30, 10), new unbreakableBrick(400, 50, 30, 10));
    myGameArea.start();
 }
 
@@ -78,7 +91,10 @@ function updateGameArea(timestamp) {
    myGameArea.clear();
    myGamePlatform.update();
    myGameBall.update();
-   gameDecor.update();
+   myGameDecor.update();
+   for (i = 0; i < myUnbreakableBricks.length; i++) {
+      myUnbreakableBricks[i].update();
+   }
    requestAnimationFrame(updateGameArea);
 }
 
@@ -123,7 +139,7 @@ function gamePlatform(width, height, color, x, y) {
             else
                test.x += 1;
 
-            if (!gameDecor.platformCollide(test))
+            if (!myGameDecor.platformCollide(test))
                this.x = test.x;
          }         
       }
