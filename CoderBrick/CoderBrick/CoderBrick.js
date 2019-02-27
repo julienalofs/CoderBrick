@@ -78,7 +78,7 @@ function updateGameArea(timestamp) {
    myGameArea.clear();
    myGamePlatform.update();
    myGameBall.update();
-   monDecor.update();
+   gameDecor.update();
    requestAnimationFrame(updateGameArea);
 }
 
@@ -123,7 +123,7 @@ function gamePlatform(width, height, color, x, y) {
             else
                test.x += 1;
 
-            if (!monDecor.platformCollide(test))
+            if (!gameDecor.platformCollide(test))
                this.x = test.x;
          }         
       }
