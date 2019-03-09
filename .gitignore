@@ -2,7 +2,9 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/CoderBrick/v15
+
+/.vs/slnx.sqlite
 /CoderBrick/.vs
 /CoderBrick/CoderBrick/Bin
 /CoderBrick/packages
+/.vs/CoderBrick/v15
