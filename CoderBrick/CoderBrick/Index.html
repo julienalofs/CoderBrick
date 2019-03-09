@@ -11,77 +11,11 @@
    <title>Casse Brique</title>
 </head>
 <body onload="startGame()">
-   <script>
-      var myGamePiece;
-      var ball;
+   <script src="CoderBrick.js"></script>
+   <div style="text-align:center;width:480px;">
+      <button onmousedown="movePlatformLeft()" onmouseup="clearPlatformMove()" ontouchstart="movePlatformLeft()">LEFT</button>
+      <button onmousedown="movePlatformRight()" onmouseup="clearPlatformMove()" ontouchstart="movePlatformRight()">RIGHT</button><br><br>
+   </div>
 
-      function startGame() {
-         myGameArea.start();
-         myGamePiece = new rectangle(30, 10, "red", 225, 240);
-         ball = new circle(20, "green", 100, 100, Math.floor(Math.random() * 360), 5);
-      }
-
-      var myGameArea = {
-         canvas: document.createElement("canvas"),
-         start: function () {
-            this.canvas.width = 480;
-            this.canvas.height = 270;
-            this.context = this.canvas.getContext("2d");
-            document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-            this.interval = setInterval(updateGameArea, 20);
-         },
-         clear: function () {
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-         }
-      }
-
-      function rectangle(width, height, color, x, y) {
-         this.width = width;
-         this.height = height;
-         this.x = x;
-         this.y = y;
-         this.color = color;
-         this.update = function(){
-            ctx = myGameArea.context;
-            ctx.fillStyle = this.color;
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-         }
-      }
-
-      function circle(radius, color, x, y, direction, speed) {
-         this.radius = radius;
-         this.color = color;
-         this.x = x;
-         this.y = y;
-         this.direction = direction;
-         this.speed = speed;
-         this.move = function () {
-            this.x += Math.cos(this.direction * 2 * Math.PI / 360) * this.speed;
-            this.y += Math.sin(this.direction * 2 * Math.PI / 360) * this.speed;
-            if (this.x >= (myGameArea.canvas.width - this.radius) || this.x <= this.radius) {
-                  this.direction = 180 - this.direction;
-            }
-            if (this.y >= (myGameArea.canvas.height - this.radius) || this.y <= this.radius) {
-                  this.direction = 360 - this.direction;
-            }
-         }
-         this.update = function () {
-            ctx = myGameArea.context;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-            ctx.closePath();
-            ctx.fillStyle = this.color;
-            ctx.fill();
-         }
-      }
-
-      function updateGameArea() {
-         myGameArea.clear();
-         myGamePiece.update();
-         ball.update();
-         ball.move();
-      }
-
-   </script>
 </body>
 </html> 
