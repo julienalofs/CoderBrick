@@ -38,6 +38,7 @@ function gameDecor(color) {
       //Top border
       ctx.fillRect(0, 0, myGameArea.canvas.width, 10);
    }
+
    this.platformCollide= function (platform) {
       if ((platform.x + (platform.width) > myGameArea.canvas.width - 10)
          || (platform.x < 10))
@@ -80,7 +81,6 @@ function unbreakableBrick(x, y, width, height, color) {
       ctx.strokeRect(this.x, this.y, this.width, this.height);
    }
 
-
    this.getNormale = function (x, y, radius, direction) {
       //   1 |    2   | 3
       //  --- -------- ---
@@ -112,6 +112,7 @@ function unbreakableBrick(x, y, width, height, color) {
             return 45; //zone 5
       }
    }
+
    this.detectCollide = function (x, y, radius, direction) {
       if (((x + radius) >= this.x)
          && ((x - radius) <= (this.x + this.width))
@@ -210,6 +211,7 @@ function gamePlatform(width, height, color, x, y) {
       else
          return false;
    }
+
    this.getNormale = function (x, y, radius, direction) {
       //   1 |    2   | 3
       //  --- -------- ---
@@ -275,12 +277,10 @@ function gameBall(radius, color, x, y, direction, speed) {
             else
                vect = this.direction + 180;
 
-            if (vect == normale) {
+            if (vect == normale)
                this.direction = vect;
-            }
-            else {
+            else
                this.direction = 2 * normale - vect;
-            }
 
             break;
          }
