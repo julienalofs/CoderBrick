@@ -4,23 +4,38 @@ var myGamePlatform;
 var myGameBall;
 var myGameDecor;
 var myUnbreakableBricks;
+var totalLifes = 3;
 
 var myGameArea = {
    starttime : null,
    time: 0,
    keycode: null,
-   canvas: document.createElement("canvas"),
+   width: 480,
+   height: 350,
    start: function () {
-      this.canvas.width = 480;
-      this.canvas.height = 270;
+      document.getElementById("life").innerHTML = totalLifes.toString();
+      this.canvas = document.getElementById("myCanvas");
+      this.canvas.width = this.width;
+      this.canvas.height = this.height;
       this.context = this.canvas.getContext("2d");
-      document.body.insertBefore(this.canvas, document.body.childNodes[0]);
       document.addEventListener('keydown', keyDown);
       document.addEventListener('keyup', keyUp);
       requestAnimationFrame(updateGameArea);
    },
    clear: function () {
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+   },
+   gameover: function () {
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      ctx = this.context;
+      ctx.fillStyle = "red";
+      ctx.font = "30px Arial";
+      ctx.fillText("GAME OVER",this.canvas.width/2 - 100,this.canvas.height/2);
+   },
+   removeLife: function () {
+      totalLifes--;
+      document.getElementById("life").innerHTML = totalLifes.toString();
    }
 }
 
@@ -127,8 +142,8 @@ function unbreakableBrick(x, y, width, height, color) {
 }
 
 function startGame() {
-   myGamePlatform = new gamePlatform(75, 10, "red", 225, 240);
-   myGameBall = new gameBall(10, "green", 100, 100, Math.floor(Math.random() * 360), 5);
+   myGamePlatform = new gamePlatform(75, 10, "red", 32 + myGameArea.width / 2, myGameArea.height - 20);
+   myGameBall = new gameBall(10, "green", 0, 0, Math.floor(Math.random() * 180)+180, 0);
    myGameBall.addCollider(myGamePlatform);
    myGameDecor = new gameDecor("blue");
    myGameBall.addCollider(myGameDecor);
@@ -140,18 +155,22 @@ function startGame() {
 }
 
 function updateGameArea(timestamp) {
-   if (myGameArea.starttime == null)
-      myGameArea.starttime = timestamp;
-   else
-      myGameArea.time = timestamp - myGameArea.starttime;
-   myGameArea.clear();
-   myGamePlatform.update();
-   myGameBall.update();
-   myGameDecor.update();
-   for (i = 0; i < myUnbreakableBricks.length; i++) {
-      myUnbreakableBricks[i].update();
+   if (totalLifes > 0) {
+      if (myGameArea.starttime == null)
+         myGameArea.starttime = timestamp;
+      else
+         myGameArea.time = timestamp - myGameArea.starttime;
+      myGameArea.clear();
+      myGamePlatform.update();
+      myGameBall.update();
+      myGameDecor.update();
+      for (i = 0; i < myUnbreakableBricks.length; i++) {
+         myUnbreakableBricks[i].update();
+      }
+      requestAnimationFrame(updateGameArea);
    }
-   requestAnimationFrame(updateGameArea);
+   else
+      myGameArea.gameover();
 }
 
 function getSpeed(initialSpeed, acceleration, time) {
@@ -254,15 +273,27 @@ function gameBall(radius, color, x, y, direction, speed) {
    this.speed = speed;
    this.colliderList = new Array();
    this.update = function () {
-      this.x += Math.cos(this.direction * 2 * Math.PI / 360) * this.speed;
-      this.y += Math.sin(this.direction * 2 * Math.PI / 360) * this.speed;
+      if (this.speed == 0) { //Ball originally stuck to the platform
+         this.x = myGamePlatform.x + myGamePlatform.width / 2;
+         this.y = myGamePlatform.y - 11;
+      }
+      else {
+         for (i = 0; i < this.speed; i++) {
+            this.x += Math.cos(this.direction * 2 * Math.PI / 360);
+            this.y += Math.sin(this.direction * 2 * Math.PI / 360);
+            this.collide();
+            if (this.y > myGameArea.canvas.height) {
+               this.speed = 0;
+               myGameArea.removeLife();
+            }
+         }
+      }
       ctx = myGameArea.context;
       ctx.beginPath();
       ctx.arc(this.x, this.y, radius, 0, 2 * Math.PI);
       ctx.closePath();
       ctx.fillStyle = color;
       ctx.fill();
-      this.collide();
    }
    this.addCollider = function (object) {
       this.colliderList.push(object);
@@ -302,21 +333,28 @@ function clearPlatformMove() {
 }
 
 function keyDown(e) {
-   if ((e.code == "ArrowLeft") || (e.code == "ArrowRight")) {
-      if (myGameArea.keycode != e.code) {
-         clearPlatformMove();
-         myGameArea.keycode = e.code;
-         if (e.code == "ArrowLeft")
-            movePlatformLeft();
-         else
-            movePlatformRight();
+   if (totalLifes > 0) {
+      if ((e.code == "ArrowLeft") || (e.code == "ArrowRight")) {
+         if (myGameArea.keycode != e.code) {
+            clearPlatformMove();
+            myGameArea.keycode = e.code;
+            if (e.code == "ArrowLeft")
+               movePlatformLeft();
+            else
+               movePlatformRight();
+         }
       }
-   }
+      else if ((e.code == "Space")) {
+         myGameBall.speed = 5;
+      }
+   }   
 }
 
 function keyUp(e) {
-   if (e.code == myGameArea.keycode) {
-      clearPlatformMove();
-      myGameArea.keycode = null;
+   if (totalLifes > 0) {
+      if (e.code == myGameArea.keycode) {
+         clearPlatformMove();
+         myGameArea.keycode = null;
+      }
    }
 }

@@ -12,9 +12,12 @@
 </head>
 <body onload="startGame()">
    <script src="CoderBrick.js"></script>
+
+   <div>Vies: <span id="life"></span></div>
+   <canvas id="myCanvas"></canvas>      
    <div style="text-align:center;width:480px;">
       <button onmousedown="movePlatformLeft()" onmouseup="clearPlatformMove()" ontouchstart="movePlatformLeft()">LEFT</button>
-      <button onmousedown="movePlatformRight()" onmouseup="clearPlatformMove()" ontouchstart="movePlatformRight()">RIGHT</button><br><br>
+      <button onmousedown="movePlatformRight()" onmouseup="clearPlatformMove()" ontouchstart="movePlatformRight()">RIGHT</button>
    </div>
 
 </body>
