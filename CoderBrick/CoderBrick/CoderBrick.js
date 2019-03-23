@@ -45,7 +45,7 @@ function gameDecor(color) {
          return true;
    }
 
-   this.getNormale = function (x, y, radius, direction) {
+   this.getNormale = function (x, y, radius) {
       if ((x + radius) >= (myGameArea.canvas.width - 10))
          return 180;
       else if ((x - radius) <= 10)
@@ -81,7 +81,7 @@ function unbreakableBrick(x, y, width, height, color) {
       ctx.strokeRect(this.x, this.y, this.width, this.height);
    }
 
-   this.getNormale = function (x, y, radius, direction) {
+   this.getNormale = function (x, y, radius) {
       //   1 |    2   | 3
       //  --- -------- ---
       //   8 |        | 4
@@ -212,7 +212,7 @@ function gamePlatform(width, height, color, x, y) {
          return false;
    }
 
-   this.getNormale = function (x, y, radius, direction) {
+   this.getNormale = function (x, y, radius) {
       //   1 |    2   | 3
       //  --- -------- ---
       //   8 |        | 4
@@ -270,7 +270,7 @@ function gameBall(radius, color, x, y, direction, speed) {
    this.collide = function () {
       for (var i = 0; i < this.colliderList.length; i++) {
          if (this.colliderList[i].detectCollide(this.x, this.y, this.radius, this.direction) == true) {
-            normale = this.colliderList[i].getNormale(this.x, this.y, this.radius, this.direction);
+            normale = this.colliderList[i].getNormale(this.x, this.y, this.radius);
 
             if (this.direction > 180)
                vect = this.direction - 180;
