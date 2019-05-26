@@ -3,16 +3,16 @@
 var myGamePlatform;
 var myGameBall;
 var myGameDecor;
-var myUnbreakableBricks;
+var myBricks;
 
 var myGameArea = {
    starttime : null,
    time: 0,
    keycode: null,
    canvas: document.createElement("canvas"),
-   start: function () {
-      this.canvas.width = 480;
-      this.canvas.height = 270;
+   start: function (width, height) {
+      this.canvas.width = width;
+      this.canvas.height = height;
       this.context = this.canvas.getContext("2d");
       document.body.insertBefore(this.canvas, document.body.childNodes[0]);
       document.addEventListener('keydown', keyDown);
@@ -24,51 +24,60 @@ var myGameArea = {
    }
 }
 
-function gameDecor(color) {
+function gameDecor(color, borderWidth) {
    this.color = color;
+   this.borderWidth = borderWidth;
    this.update= function () {
       ctx = myGameArea.context;
       ctx.fillStyle = this.color;
       //Left border
-      ctx.fillRect(0, 0, 10, myGameArea.canvas.height);
+      ctx.fillRect(0, 0, this.borderWidth, myGameArea.canvas.height);
 
       //Right border
-      ctx.fillRect(myGameArea.canvas.width - 10, 0, 10, myGameArea.canvas.height);
+      ctx.fillRect(myGameArea.canvas.width - this.borderWidth, 0, this.borderWidth, myGameArea.canvas.height);
 
       //Top border
-      ctx.fillRect(0, 0, myGameArea.canvas.width, 10);
+      ctx.fillRect(0, 0, myGameArea.canvas.width, this.borderWidth);
    }
 
    this.platformCollide= function (platform) {
-      if ((platform.x + (platform.width) > myGameArea.canvas.width - 10)
-         || (platform.x < 10))
+      if ((platform.x + (platform.width) > myGameArea.canvas.width - this.borderWidth)
+         || (platform.x < this.borderWidth))
          return true;
    }
 
    this.getNormale = function (x, y, radius) {
-      if ((x + radius) >= (myGameArea.canvas.width - 10))
+      if ((x + radius) >= (myGameArea.canvas.width - this.borderWidth))
          return 180;
-      else if ((x - radius) <= 10)
+      else if ((x - radius) <= this.borderWidth)
          return 0;
-      else if ((y - radius) <= 10)
+      else if ((y - radius) <= this.borderWidth)
          return 90;
       else
          return 0;
    }
 
    this.detectCollide = function (x, y, radius, direction) {
-      if ((x + radius) >= (myGameArea.canvas.width - 10))
+      if ((x + radius) >= (myGameArea.canvas.width - this.borderWidth))
          return true;
-      else if ((x - radius) <= 10) 
+      else if ((x - radius) <= this.borderWidth) 
          return true;    
-      else if ((y - radius) <= 10)
+      else if ((y - radius) <= this.borderWidth)
          return true;    
       else
          return false;
    }
+   
+   this.isBreakable = function() {
+      return false;
+   }
+   this.breakObject = function() {
+   }
 }
 
-function unbreakableBrick(x, y, width, height, color) {
+function brick(breakable, x, y, width, height, color) {
+   this.breakable = breakable;
+   this.broken = false;
    this.x = x;
    this.y = y;
    this.width = width;
@@ -76,9 +85,9 @@ function unbreakableBrick(x, y, width, height, color) {
    this.color = color;
    this.update = function () {
       ctx = myGameArea.context;
-      //Unbreakable brick
+      ctx.lineWidth = 3;
       ctx.strokeStyle = this.color;
-      ctx.strokeRect(this.x, this.y, this.width, this.height);
+      ctx.strokeRect(this.x + (ctx.lineWidth / 2), this.y + (ctx.lineWidth / 2), this.width - ctx.lineWidth, this.height - ctx.lineWidth);
    }
 
    this.getNormale = function (x, y, radius) {
@@ -124,19 +133,51 @@ function unbreakableBrick(x, y, width, height, color) {
       else
          return false;
    }
+   
+   this.isBreakable = function() {
+      return this.breakable;
+   }
+   this.breakObject = function() {
+      this.broken = true;
+   }
 }
 
 function startGame() {
+   var width = 500;
+   var height = 270;
+   var borderWidth = 10;
+   
    myGamePlatform = new gamePlatform(75, 10, "red", 225, 240);
    myGameBall = new gameBall(10, "green", 100, 100, Math.floor(Math.random() * 360), 5);
    myGameBall.addCollider(myGamePlatform);
-   myGameDecor = new gameDecor("blue");
+   myGameDecor = new gameDecor("blue", borderWidth);
    myGameBall.addCollider(myGameDecor);
-   myUnbreakableBricks = new Array(new unbreakableBrick(60, 60, 30, 10), new unbreakableBrick(310, 120, 30, 10), new unbreakableBrick(400, 50, 30, 10));
-   myUnbreakableBricks.forEach(function (item, index, array) {
+   
+   myBricks = generateBricks(borderWidth, borderWidth, width - (2 * borderWidth), height / 4, 0.9);
+   myBricks.forEach(function (item, index, array) {
       myGameBall.addCollider(item);
    });   
-   myGameArea.start();
+   myGameArea.start(width, height);
+}
+
+function generateBricks(topPosition, leftPosition, totalWidth, totalHeight, breakableProportion) {
+   var breakableBrickColorList = ["green", "blue", "red"];
+   var unbreakableBrickColor = "black";
+   var brickWidth = 30;
+   var brickHeight = 10;
+   var maxNbColumns = totalWidth / brickWidth;
+   var maxNbRows = totalHeight / brickHeight;
+   
+   var bricks = new Array();
+   for (var i = 0; i < maxNbColumns; i++) {
+      for (var j = 0; j < maxNbRows; j++) {
+         var isBreakable = (Math.random() < breakableProportion);
+         var color = (isBreakable ? breakableBrickColorList[Math.floor(Math.random() * breakableBrickColorList.length)] : unbreakableBrickColor);
+         bricks.push(new brick(isBreakable, topPosition + (i * brickWidth), leftPosition + (j * brickHeight), brickWidth, brickHeight, color))
+      }
+   }
+   
+   return bricks;
 }
 
 function updateGameArea(timestamp) {
@@ -148,8 +189,12 @@ function updateGameArea(timestamp) {
    myGamePlatform.update();
    myGameBall.update();
    myGameDecor.update();
-   for (i = 0; i < myUnbreakableBricks.length; i++) {
-      myUnbreakableBricks[i].update();
+   for (i = 0; i < myBricks.length; i++) {
+      if (myBricks[i].broken) {
+         this.myBricks.splice(i, 1);
+         i--;
+      }
+      myBricks[i].update();
    }
    requestAnimationFrame(updateGameArea);
 }
@@ -210,6 +255,12 @@ function gamePlatform(width, height, color, x, y) {
          return true;
       else
          return false;
+   }
+   
+   this.isBreakable = function() {
+      return false;
+   }
+   this.breakObject = function() {
    }
 
    this.getNormale = function (x, y, radius) {
@@ -282,6 +333,11 @@ function gameBall(radius, color, x, y, direction, speed) {
             else
                this.direction = 2 * normale - vect;
 
+            if (this.colliderList[i].isBreakable()) {
+               this.colliderList[i].breakObject();
+               this.colliderList.splice(i, 1);
+               i--;
+            }
             break;
          }
       }
